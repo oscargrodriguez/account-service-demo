@@ -29,15 +29,6 @@ public class AccountController {
     public Account createAccount(@RequestBody CreateAccount createAccount) {
         AccountEvent accountEvent = new AccountEvent(createAccount.getAccount().getAccountNumber());
         accountEventRepository.save(accountEvent);
-
-        //Publish event
-        MessageChannel messageChannel = accountStreams.outboundAccounts();
-        messageChannel.send(MessageBuilder
-                .withPayload(createAccount.getAccount())
-                .setHeader(MessageHeaders.CONTENT_TYPE, MimeTypeUtils.APPLICATION_JSON)
-                .build());
-
-
         return accountRepository.save(createAccount.getAccount());
     }
 
@@ -49,6 +40,12 @@ public class AccountController {
             account.setAccountStatus(AccountStatus.ACTIVE);
             accountRepository.save(account);
             accountEventRepository.save(new AccountEvent(account.getAccountNumber(), AccountEventType.ACTIVE));
+            //Publish event
+            MessageChannel messageChannel = accountStreams.outboundAccounts();
+            messageChannel.send(MessageBuilder
+                    .withPayload(account)
+                    .setHeader(MessageHeaders.CONTENT_TYPE, MimeTypeUtils.APPLICATION_JSON)
+                    .build());
         } else {
             //throw exception
         }
