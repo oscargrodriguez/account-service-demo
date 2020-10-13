@@ -7,39 +7,35 @@ import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/")
+@RequestMapping("/accounts/")
 public class AccountController {
 
     AccountRepository accountRepository;
-    AccountEventRepository accountEventRepository;
     AccountStreams accountStreams;
 
-    public AccountController(AccountRepository accountRepository, AccountEventRepository accountEventRepository, AccountStreams accountStreams) {
+    public AccountController(AccountRepository accountRepository,
+                             AccountStreams accountStreams) {
         this.accountRepository = accountRepository;
-        this.accountEventRepository = accountEventRepository;
         this.accountStreams = accountStreams;
     }
 
-    @GetMapping("/accounts/{id}")
+    @GetMapping("{id}")
     public Account getAccount(@PathVariable Integer id) {
         return accountRepository.findById(id).get();
     }
 
-    @PostMapping("/accounts")
+    @PostMapping("")
     public Account createAccount(@RequestBody CreateAccount createAccount) {
         AccountEvent accountEvent = new AccountEvent(createAccount.getAccount().getAccountNumber());
-        accountEventRepository.save(accountEvent);
         return accountRepository.save(createAccount.getAccount());
     }
 
-    @PostMapping("/accounts/{id}/activate")
+    @PostMapping("{id}/activate")
     public Account activateAccount(@PathVariable(value = "id") Integer id) {
         Account account = accountRepository.findById(id).get();
-        AccountStatus accountStatus = account.getAccountStatus();
-        if (AccountStatus.PENDING == accountStatus) {
+        if (AccountStatus.PENDING == account.getAccountStatus()) {
             account.setAccountStatus(AccountStatus.ACTIVE);
             accountRepository.save(account);
-            accountEventRepository.save(new AccountEvent(account.getAccountNumber(), AccountEventType.ACTIVE));
             //Publish event
             MessageChannel messageChannel = accountStreams.outboundAccounts();
             messageChannel.send(MessageBuilder
