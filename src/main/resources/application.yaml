@@ -7,9 +7,6 @@ spring:
         binder:
           brokers: localhost:9092
       bindings:
-        accounts-in:
-          destination: accounts
-          contentType: application/json
         accounts-out:
           destination: accounts
           contentType: application/json
