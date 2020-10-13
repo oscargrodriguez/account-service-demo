@@ -1,5 +1,9 @@
 package com.foobar.accountservice;
 
+import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.MessageHeaders;
+import org.springframework.messaging.support.MessageBuilder;
+import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -8,10 +12,12 @@ public class AccountController {
 
     AccountRepository accountRepository;
     AccountEventRepository accountEventRepository;
+    AccountStreams accountStreams;
 
-    public AccountController(AccountRepository accountRepository, AccountEventRepository accountEventRepository) {
+    public AccountController(AccountRepository accountRepository, AccountEventRepository accountEventRepository, AccountStreams accountStreams) {
         this.accountRepository = accountRepository;
         this.accountEventRepository = accountEventRepository;
+        this.accountStreams = accountStreams;
     }
 
     @GetMapping("/accounts/{id}")
@@ -23,6 +29,15 @@ public class AccountController {
     public Account createAccount(@RequestBody CreateAccount createAccount) {
         AccountEvent accountEvent = new AccountEvent(createAccount.getAccount().getAccountNumber());
         accountEventRepository.save(accountEvent);
+
+        //Publish event
+        MessageChannel messageChannel = accountStreams.outboundAccounts();
+        messageChannel.send(MessageBuilder
+                .withPayload(createAccount.getAccount())
+                .setHeader(MessageHeaders.CONTENT_TYPE, MimeTypeUtils.APPLICATION_JSON)
+                .build());
+
+
         return accountRepository.save(createAccount.getAccount());
     }
 

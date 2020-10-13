@@ -1,5 +1,10 @@
 package com.foobar.accountservice;
 
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -7,6 +12,10 @@ import javax.persistence.Id;
 import java.util.Date;
 
 @Entity
+@Getter
+@Setter
+@ToString
+@Builder
 public class AccountEvent {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -28,35 +37,10 @@ public class AccountEvent {
         this.accountEventType = accountEventType;
     }
 
-    public AccountEventType getAccountEventType() {
-        return accountEventType;
-    }
-
-    public void setAccountEventType(AccountEventType accountEventType) {
-        this.accountEventType = accountEventType;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
+    public AccountEvent(Integer id, String accountNumber, AccountEventType accountEventType, Long timestamp) {
         this.id = id;
-    }
-
-    public String getAccountNumber() {
-        return accountNumber;
-    }
-
-    public void setAccountNumber(String accountNumber) {
         this.accountNumber = accountNumber;
-    }
-
-    public Long getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(Long timestamp) {
+        this.accountEventType = accountEventType;
         this.timestamp = timestamp;
     }
 }
