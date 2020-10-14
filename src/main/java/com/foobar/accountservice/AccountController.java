@@ -36,12 +36,12 @@ public class AccountController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Found the account",
-                    content = { @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Account.class)) }),
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Account.class))}),
             @ApiResponse(responseCode = "400", description = "Invalid id supplied",
                     content = @Content),
             @ApiResponse(responseCode = "404", description = "Account not found",
-                    content = @Content) })
+                    content = @Content)})
     public Account getAccountById(@Parameter(description = "account id to be searched") @PathVariable Integer id) {
         return accountRepository.findById(id).get();
     }
@@ -55,9 +55,11 @@ public class AccountController {
 
     @Operation(summary = "Create account")
     @PostMapping("signup")
-    public Account createAccount(@RequestBody CreateAccount createAccount) {
-        AccountEvent accountEvent = new AccountEvent(createAccount.getAccount().getAccountNumber());
-        return accountRepository.save(createAccount.getAccount());
+    public Account createAccount(@RequestParam String accountNumber,
+                                 @RequestParam String userName,
+                                 @RequestParam String password) {
+        Account account = new Account(accountNumber, userName, password, Role.ROLE_CLIENT);
+        return accountRepository.save(account);
     }
 
     @Operation(summary = "Activate account")
