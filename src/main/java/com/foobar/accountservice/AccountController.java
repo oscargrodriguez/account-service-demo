@@ -1,6 +1,11 @@
 package com.foobar.accountservice;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHeaders;
@@ -25,10 +30,19 @@ public class AccountController {
         this.accountStreams = accountStreams;
         this.accountService = accountService;
     }
+
     @Operation(summary = "Get an account by its id")
     @GetMapping("{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public Account getAccountById(@PathVariable Integer id) {
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Found the account",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Account.class)) }),
+            @ApiResponse(responseCode = "400", description = "Invalid id supplied",
+                    content = @Content),
+            @ApiResponse(responseCode = "404", description = "Account not found",
+                    content = @Content) })
+    public Account getAccountById(@Parameter(description = "account id to be searched") @PathVariable Integer id) {
         return accountRepository.findById(id).get();
     }
 
