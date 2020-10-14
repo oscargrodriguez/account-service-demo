@@ -1,5 +1,6 @@
 package com.foobar.accountservice;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHeaders;
@@ -24,25 +25,28 @@ public class AccountController {
         this.accountStreams = accountStreams;
         this.accountService = accountService;
     }
-
+    @Operation(summary = "Get an account by its id")
     @GetMapping("{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Account getAccountById(@PathVariable Integer id) {
         return accountRepository.findById(id).get();
     }
 
+    @Operation(summary = "Get an account by its username")
     @GetMapping(value = "userName/{username}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Account getAccountByName(@PathVariable String username) {
         return accountRepository.findByUsername(username);
     }
 
+    @Operation(summary = "Create account")
     @PostMapping("signup")
     public Account createAccount(@RequestBody CreateAccount createAccount) {
         AccountEvent accountEvent = new AccountEvent(createAccount.getAccount().getAccountNumber());
         return accountRepository.save(createAccount.getAccount());
     }
 
+    @Operation(summary = "Activate account")
     @PostMapping("{id}/activate")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Account activateAccount(@PathVariable(value = "id") Integer id) {
@@ -63,6 +67,7 @@ public class AccountController {
     }
 
 
+    @Operation(summary = "Log in and get jwt token")
     @PostMapping("signin")
     public String login(@RequestParam String username, //
                         @RequestParam String password) {
@@ -70,6 +75,7 @@ public class AccountController {
     }
 
 
+    @Operation(summary = "Delete account by its username")
     @DeleteMapping(value = "{username}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public String delete(@PathVariable String username) {
@@ -78,12 +84,14 @@ public class AccountController {
     }
 
 
+    @Operation(summary = "Get logged account data")
     @GetMapping(value = "me")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_CLIENT')")
     public Account whoami(HttpServletRequest req) {
         return accountService.whoami(req);
     }
 
+    @Operation(summary = "Obtain new jwt token")
     @GetMapping("/refresh")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_CLIENT')")
     public String refresh(HttpServletRequest req) {
