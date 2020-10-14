@@ -1,6 +1,6 @@
 package com.foobar.accountservice;
 
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -14,24 +14,18 @@ import javax.persistence.Id;
 @Getter
 @Setter
 @ToString
-@Builder
+@AllArgsConstructor
 public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
-
     private String accountNumber;
-
     private AccountStatus accountStatus = AccountStatus.PENDING;
+    private String username;
+    private String password;
+    private Role role;
 
     public Account() {
-    }
-
-
-    public Account(Integer id, String accountNumber, AccountStatus accountStatus) {
-        this.id = id;
-        this.accountNumber = accountNumber;
-        this.accountStatus = accountStatus;
     }
 }
 
